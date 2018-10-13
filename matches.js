@@ -1,6 +1,9 @@
 var pg = require('pg');
 var crypto = require('crypto-js');
 
+var pool = new pg.Pool()
+
+
 module.exports = function(app) {
     app.post('/save-match', function(request, response) {
         var contextId = request.body.contextId;
@@ -51,7 +54,7 @@ module.exports = function(app) {
     
     saveMatchDataAsync = function(contextId, data) {
         return new Promise(function(resolve, reject){
-            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+            pool.connect(process.env.DATABASE_URL, function(err, client, done) {
                 client.query('SELECT * FROM matches WHERE context = $1::text', [contextId], function(err, result) {
                     if (err) {
                         reject(err)
@@ -84,7 +87,7 @@ module.exports = function(app) {
     
     loadMatchDataAsync = function(contextId) {
         return new Promise(function(resolve, reject){
-            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+            pool.connect(process.env.DATABASE_URL, function(err, client, done) {
                 client.query('SELECT * FROM matches WHERE context = $1::text', [contextId], function(err, result) {
                     done();
                     if (err) {
